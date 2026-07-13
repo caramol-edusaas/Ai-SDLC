@@ -5,7 +5,7 @@ import PhoneInputRaw from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 const PhoneInput = PhoneInputRaw.default || PhoneInputRaw;
 import { GoogleLogin } from "@react-oauth/google";
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Bot, Eye, EyeOff, Lock } from "lucide-react";
 import { authService } from "../../services/authService";
 
 export default function Login() {
@@ -110,8 +110,10 @@ export default function Login() {
         {/* Logo Identity Frame */}
         <div className="flex flex-col justify-center items-center mb-6">
           <div className="flex items-center gap-2 text-[var(--secondaryColor)] font-[var(--fontWeightBold,600)] text-[var(--fontSizeXl,22px)] font-[var(--fontFamilyHeading,Roboto)]">
-            <span className="text-3xl">✨</span>
-            <span className="tracking-tight text-textMain">Perfecto AI</span>
+            <span className="text-3xl">
+              <Bot />
+            </span>
+            <span className="tracking-tight  text-textMain">AI SDLC</span>
           </div>
         </div>
 
