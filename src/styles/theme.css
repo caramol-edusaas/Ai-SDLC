@@ -1,0 +1,11 @@
+/* src/styles/theme.css */
+@layer base {
+  :root {
+    /* Fallback default colors in case the API delays */
+    --primary-color: #25d366;
+    --secondary-color: #075e54;
+    --background-color: #f5f7fa;
+    --surface-color: #ffffff;
+    --text-color: #111111;
+  }
+}

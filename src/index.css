@@ -1,0 +1,23 @@
+/* src/index.css */
+@import "tailwindcss";
+
+@theme {
+  --color-primary: var(--primary-color);
+  --color-primaryDark: var(--primary-color-dark);
+  --color-secondary: var(--secondary-color);
+  --color-background: var(--background-color);
+  --color-surface: var(--surface-color);
+  --color-textMain: var(--text-color);
+  --color-textSecondary: var(--text-secondary-color);
+  --color-sidebarBg: var(--sidebar-bg);
+  --color-sidebarText: var(--sidebar-text);
+
+  --radius-themeDefault: var(--border-radius);
+  --radius-themeBtn: var(--button-border-radius);
+  --radius-themeInput: var(--input-border-radius);
+  --radius-themeCard: var(--card-border-radius);
+
+  /* Fonts linked to your API custom properties */
+  --font-base: var(--font-family-base), sans-serif;
+  --font-heading: var(--font-family-heading), sans-serif;
+}
