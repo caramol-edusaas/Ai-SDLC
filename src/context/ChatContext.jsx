@@ -103,6 +103,7 @@ export const ChatProvider = ({ children }) => {
         // --- EXPORTING NEW VARIABLES & FUNCTIONS ---
         projects,
         walletBalance,
+        fetchWalletBalance,
         addMoney,
         fetchProjects,
       }}

@@ -26,6 +26,7 @@ export default function Sidebar({ isMobileOpen, setIsMobileOpen }) {
     setProjectId,
     setMessages,
     setIsGenerating,
+    fetchWalletBalance,
   } = useChat();
 
   const [isRecharging, setIsRecharging] = useState(false);
@@ -42,6 +43,16 @@ export default function Sidebar({ isMobileOpen, setIsMobileOpen }) {
     setMessages([]);
     localStorage.removeItem("ai_project_id");
     if (window.innerWidth < 768) setIsMobileOpen(false);
+  };
+
+  const handleWalletToggle = async () => {
+    const willReveal = !isWalletRevealed;
+    setIsWalletRevealed(willReveal);
+
+    // Only fetch fresh data from the API if we are opening the eye icon
+    if (willReveal) {
+      await fetchWalletBalance();
+    }
   };
 
   const handleProjectClick = async (selectedId) => {
@@ -155,7 +166,7 @@ export default function Sidebar({ isMobileOpen, setIsMobileOpen }) {
       {/* ================= WALLET FLIP CARD ================= */}
       <div className="px-4 mb-4">
         <div
-          onClick={() => setIsWalletRevealed(!isWalletRevealed)}
+          onClick={handleWalletToggle}
           className="cursor-pointer rounded-xl p-4 shadow-lg transition-all duration-500 flex flex-col justify-center relative overflow-hidden group"
           style={{
             backgroundColor: AppColors.surface,
