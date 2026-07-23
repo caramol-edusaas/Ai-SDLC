@@ -72,8 +72,15 @@ export const authService = {
     return response.data;
   },
 
-  getSelfProfile: async () => {
-    const response = await apiClient.get("/user/self/profile");
+  getSelfProfile: async (tokenOverride) => {
+    // Agar login se naya token mila hai toh wo use karo, warna local storage se uthao
+    const token = tokenOverride || localStorage.getItem("admin_token");
+
+    const response = await apiClient.get("/user/self/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   },
 };

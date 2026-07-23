@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import Login from "./features/auth/Login";
 import OtpVerify from "./features/auth/OtpVerify";
 import DashboardPage from "./features/chat/DashboardPage";
+import { ChatProvider } from "./context/ChatContext";
 
 // Protected Route Shield
 const ProtectedRoute = ({ children }) => {
@@ -25,7 +26,9 @@ function AppRoutes() {
         path="/"
         element={
           <ProtectedRoute>
-            <DashboardPage />
+            <ChatProvider>
+              <DashboardPage />
+            </ChatProvider>
           </ProtectedRoute>
         }
       />

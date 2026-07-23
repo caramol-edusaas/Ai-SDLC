@@ -74,6 +74,19 @@ export default function Login() {
         if (res && res.token) {
           localStorage.setItem("admin_token", res.token);
           localStorage.setItem("user_role", res.rolename || "InternalAdmin");
+
+          // YAHAN FIX HAI: res.token explicitly pass kar diya
+          const profileResponse = await authService.getSelfProfile(res.token);
+
+          if (profileResponse.success && profileResponse.data) {
+            const userData = profileResponse.data;
+
+            localStorage.setItem("user_id", userData.long1.toString());
+            localStorage.setItem("user_name", userData.str1);
+            localStorage.setItem("user_role", userData.str3);
+
+            console.log("User Data Saved:", userData.str1);
+          }
           navigate("/");
         }
       }
