@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Send, Square, Settings, X } from "lucide-react";
 import { AppColors } from "../../../utils/AppColors";
 import { useChat } from "../../../context/ChatContext";
-import { chatService } from "../services/chatService"; // <-- Service import ki
+import { chatService } from "../services/chatService";
 
 export default function CommandInput() {
   const [inputValue, setInputValue] = useState("");
@@ -21,7 +21,6 @@ export default function CommandInput() {
 
   const [localBaseUrl, setLocalBaseUrl] = useState(baseUrl);
 
-  // Keep local URL synced with global context
   useEffect(() => {
     setLocalBaseUrl(baseUrl);
   }, [baseUrl]);
@@ -43,7 +42,6 @@ export default function CommandInput() {
     }
   }, [inputValue]);
 
-  // Clean and Refactored Submit Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!inputValue.trim() || isGenerating) return;
@@ -62,17 +60,13 @@ export default function CommandInput() {
     setIsGenerating(true);
 
     try {
-      // Chat service ko call kiya
       const result = await chatService.submitChat(projectId, userMessage);
 
       if (result.success) {
-        // Agar naya project ID aaya hai toh usko update karo
         if (result.data) {
           setProjectId(result.data.toString());
           localStorage.setItem("ai_project_id", result.data.toString());
-          console.log("New Project ID linked:", result.data);
         }
-
         addMessage("ai", result.message);
       } else {
         addMessage(
@@ -100,7 +94,7 @@ export default function CommandInput() {
       {/* ================= SETTINGS POPOVER ================= */}
       {showSettings && (
         <div
-          className="absolute bottom-[80px] left-0 w-80 p-4 rounded-2xl shadow-2xl transition-all duration-300 z-50"
+          className="absolute bottom-[70px] sm:bottom-[80px] left-0 right-0 sm:right-auto mx-auto sm:mx-0 w-[calc(100vw-2rem)] sm:w-80 p-4 rounded-2xl shadow-2xl transition-all duration-300 z-50"
           style={{
             backgroundColor: AppColors.background,
             border: `1px solid ${AppColors.borderHighlight}`,
@@ -161,7 +155,7 @@ export default function CommandInput() {
       {/* ================= MAIN COMMAND INPUT ================= */}
       <form
         onSubmit={handleSubmit}
-        className="relative flex flex-col justify-end transition-all duration-300"
+        className="relative flex flex-col justify-end transition-all duration-300 mx-2 sm:mx-0"
         style={{
           backgroundColor: AppColors.surface,
           borderRadius: "24px",
@@ -171,7 +165,7 @@ export default function CommandInput() {
           boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)",
         }}
       >
-        <div className="absolute left-3 bottom-2.5 z-10">
+        <div className="absolute left-2 sm:left-3 bottom-2.5 z-10">
           <button
             type="button"
             onClick={() => setShowSettings(!showSettings)}
@@ -194,18 +188,14 @@ export default function CommandInput() {
           ref={textareaRef}
           value={inputValue}
           onChange={handleInput}
-          placeholder={
-            isGenerating
-              ? "AI is working on your request..."
-              : "Ask AI to build something magical..."
-          }
+          placeholder={isGenerating ? "AI is working..." : "Ask AI to build..."}
           disabled={isGenerating}
-          className="w-full py-4 pl-14 pr-16 bg-transparent outline-none resize-none text-sm transition-opacity custom-scrollbar"
+          className="w-full py-3 sm:py-4 pl-12 sm:pl-14 pr-14 sm:pr-16 bg-transparent outline-none resize-none text-sm transition-opacity custom-scrollbar"
           style={{
             color: AppColors.textMain,
             opacity: isGenerating ? 0.5 : 1,
             maxHeight: "200px",
-            minHeight: "56px",
+            minHeight: "48px",
           }}
           rows="1"
           onKeyDown={(e) => {
@@ -216,12 +206,12 @@ export default function CommandInput() {
           }}
         />
 
-        <div className="absolute right-3 bottom-2.5 z-10">
+        <div className="absolute right-2 sm:right-3 bottom-1.5 sm:bottom-2.5 z-10">
           {isGenerating ? (
             <button
               type="button"
               onClick={handleStop}
-              className="p-2.5 rounded-full flex items-center justify-center transition-all animate-pulse"
+              className="p-2 sm:p-2.5 rounded-full flex items-center justify-center transition-all animate-pulse"
               style={{
                 backgroundColor: AppColors.surface,
                 border: `1px solid ${AppColors.borderHighlight}`,
@@ -238,7 +228,7 @@ export default function CommandInput() {
             <button
               type="submit"
               disabled={!inputValue.trim()}
-              className="p-2.5 rounded-full flex items-center justify-center transition-all duration-200"
+              className="p-2 sm:p-2.5 rounded-full flex items-center justify-center transition-all duration-200"
               style={{
                 backgroundColor: inputValue.trim()
                   ? AppColors.primary
@@ -257,9 +247,9 @@ export default function CommandInput() {
         </div>
       </form>
 
-      <div className="text-center mt-2">
+      <div className="text-center mt-2 px-4 sm:px-0">
         <span
-          className="text-[10px] tracking-wide"
+          className="text-[9px] sm:text-[10px] tracking-wide block sm:inline"
           style={{ color: AppColors.textMuted }}
         >
           AI SDLC operates purely autonomously. Tokens will be deducted based on

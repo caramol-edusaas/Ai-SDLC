@@ -12,11 +12,12 @@ import {
   MoreHorizontal,
   Eye,
   EyeOff,
+  X,
 } from "lucide-react";
 import { AppColors } from "../../../utils/AppColors";
 import BillingModal from "./BillingModal";
 
-export default function Sidebar() {
+export default function Sidebar({ isMobileOpen, setIsMobileOpen }) {
   const {
     projects,
     walletBalance,
@@ -36,14 +37,13 @@ export default function Sidebar() {
   const userRole = localStorage.getItem("user_role") || "Premium Plan";
   const userId = localStorage.getItem("user_id") || 1;
 
-  // 1. Handle New Chat
   const handleNewChat = () => {
-    setProjectId(null); // Reset Project ID
-    setMessages([]); // Clear Canvas
-    localStorage.removeItem("ai_project_id"); // Sync with storage
+    setProjectId(null);
+    setMessages([]);
+    localStorage.removeItem("ai_project_id");
+    if (window.innerWidth < 768) setIsMobileOpen(false);
   };
 
-  // 2. Handle Project Selection
   const handleProjectClick = async (selectedId) => {
     const newIdString = selectedId.toString();
     if (projectId === newIdString) return;
@@ -51,6 +51,8 @@ export default function Sidebar() {
     setProjectId(newIdString);
     setIsGenerating(true);
     setMessages([]);
+
+    if (window.innerWidth < 768) setIsMobileOpen(false);
 
     try {
       const result = await chatService.getConversations(selectedId);
@@ -82,9 +84,8 @@ export default function Sidebar() {
     }
   };
 
-  // 3. Handle Wallet Recharge
   const handleRecharge = async (e) => {
-    e.stopPropagation(); // Flip trigger hone se roko
+    e.stopPropagation();
     const amountStr = window.prompt(
       "Enter amount to recharge (e.g., 500):",
       "500",
@@ -110,7 +111,9 @@ export default function Sidebar() {
 
   return (
     <div
-      className={`h-full flex flex-col transition-all duration-300 ease-in-out ${isCollapsed ? "w-20" : "w-64"} border-r relative`}
+      className={`fixed inset-y-0 left-0 z-50 h-full flex flex-col transition-all duration-300 ease-in-out border-r w-64 transform ${
+        isMobileOpen ? "translate-x-0" : "-translate-x-full"
+      } md:relative md:translate-x-0 ${isCollapsed ? "md:w-20" : "md:w-64"}`}
       style={{
         backgroundColor: AppColors.background,
         borderColor: AppColors.border,
@@ -120,7 +123,7 @@ export default function Sidebar() {
       <div className="p-4 flex items-center justify-between">
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+          className="hidden md:block p-2 rounded-lg hover:bg-white/5 transition-colors"
           title="Toggle Sidebar"
         >
           {isCollapsed ? (
@@ -128,6 +131,14 @@ export default function Sidebar() {
           ) : (
             <PanelLeftClose size={20} color={AppColors.textMuted} />
           )}
+        </button>
+
+        <button
+          onClick={() => setIsMobileOpen(false)}
+          className="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors"
+          title="Close Sidebar"
+        >
+          <X size={20} color={AppColors.textMuted} />
         </button>
 
         {!isCollapsed && (
@@ -145,17 +156,17 @@ export default function Sidebar() {
       <div className="px-4 mb-4">
         <div
           onClick={() => setIsWalletRevealed(!isWalletRevealed)}
-          className={`cursor-pointer rounded-xl p-4 shadow-lg transition-all duration-500 flex flex-col justify-center relative overflow-hidden group`}
+          className="cursor-pointer rounded-xl p-4 shadow-lg transition-all duration-500 flex flex-col justify-center relative overflow-hidden group"
           style={{
             backgroundColor: AppColors.surface,
             border: `1px solid ${AppColors.borderHighlight}`,
             minHeight: isCollapsed ? "60px" : "80px",
-            transformStyle: "preserve-3d", // Gives a premium card feel
+            transformStyle: "preserve-3d",
           }}
           title="Click to reveal balance"
         >
           {isCollapsed ? (
-            <div className="mx-auto">
+            <div className="mx-auto hidden md:block">
               <Wallet size={20} color={AppColors.primary} />
             </div>
           ) : (
@@ -203,7 +214,7 @@ export default function Sidebar() {
       <hr className="mx-4 mb-4" style={{ borderColor: AppColors.border }} />
 
       {/* ================= PROJECT LIST SECTION ================= */}
-      {!isCollapsed && (
+      {(!isCollapsed || window.innerWidth < 768) && (
         <h3
           className="text-[10px] font-bold uppercase tracking-widest mb-3 px-6"
           style={{ color: AppColors.textMuted }}
@@ -213,7 +224,7 @@ export default function Sidebar() {
       )}
 
       <div className="flex-1 overflow-y-auto custom-scrollbar px-3 flex flex-col gap-1">
-        {projects.length === 0 && !isCollapsed ? (
+        {projects.length === 0 && (!isCollapsed || window.innerWidth < 768) ? (
           <div
             className="text-xs text-center mt-6 italic opacity-50"
             style={{ color: AppColors.textMuted }}
@@ -227,13 +238,19 @@ export default function Sidebar() {
             <button
               key={proj.id}
               onClick={() => handleProjectClick(proj.id)}
-              className={`text-left p-3 rounded-xl flex items-center transition-all duration-200 ${isCollapsed ? "justify-center" : "gap-3"}`}
+              className={`text-left p-3 rounded-xl flex items-center transition-all duration-200 ${
+                isCollapsed ? "md:justify-center" : "gap-3"
+              }`}
               style={{
                 backgroundColor:
                   projectId === proj.id.toString()
                     ? "rgba(255,255,255,0.05)"
                     : "transparent",
-                border: `1px solid ${projectId === proj.id.toString() ? AppColors.borderHighlight : "transparent"}`,
+                border: `1px solid ${
+                  projectId === proj.id.toString()
+                    ? AppColors.borderHighlight
+                    : "transparent"
+                }`,
               }}
               title={proj.title}
             >
@@ -247,7 +264,7 @@ export default function Sidebar() {
                 }
               />
 
-              {!isCollapsed && (
+              {(!isCollapsed || window.innerWidth < 768) && (
                 <div className="flex flex-col overflow-hidden w-full">
                   <span
                     className="text-sm font-medium truncate w-full"
@@ -262,7 +279,20 @@ export default function Sidebar() {
         )}
       </div>
 
-      <button onClick={() => setIsModalOpen(true)}>Show Usage Analytics</button>
+      <div className="px-4 py-2">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className={`w-full text-xs font-semibold py-2 rounded-lg transition-colors hover:bg-white/5 ${
+            isCollapsed ? "md:hidden" : ""
+          }`}
+          style={{
+            color: AppColors.textMuted,
+            border: `1px solid ${AppColors.border}`,
+          }}
+        >
+          Show Usage Analytics
+        </button>
+      </div>
 
       {/* ================= USER PROFILE (FOOTER) ================= */}
       <div
@@ -270,7 +300,9 @@ export default function Sidebar() {
         style={{ borderColor: AppColors.border }}
       >
         <button
-          className={`w-full flex items-center rounded-xl transition-colors hover:bg-white/5 p-2 ${isCollapsed ? "justify-center" : "gap-3"}`}
+          className={`w-full flex items-center rounded-xl transition-colors hover:bg-white/5 p-2 ${
+            isCollapsed ? "md:justify-center" : "gap-3"
+          }`}
         >
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
@@ -279,7 +311,7 @@ export default function Sidebar() {
             <User size={16} color="#fff" />
           </div>
 
-          {!isCollapsed && (
+          {(!isCollapsed || window.innerWidth < 768) && (
             <>
               <div className="flex flex-col flex-1 text-left overflow-hidden">
                 <span

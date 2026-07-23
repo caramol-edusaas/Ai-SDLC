@@ -9,7 +9,6 @@ export default function BillingModal({ isOpen, onClose, userId, projectId }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Faltu call se bachne ka logic: Sirf tabhi call hoga jab modal khulega
     if (isOpen && userId) {
       fetchAnalytics();
     }
@@ -18,17 +17,14 @@ export default function BillingModal({ isOpen, onClose, userId, projectId }) {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      // 1. Total Summary API
       const summaryResult = await billingService.getBillingSummary(userId);
       if (summaryResult.success) {
-        // Handle both Array and Object responses based on your JSON variations
         const summaryData = Array.isArray(summaryResult.data)
           ? summaryResult.data[0]
           : summaryResult.data;
         setSummary(summaryData);
       }
 
-      // 2. Specific Project Usage API (Agar koi project selected hai)
       if (projectId) {
         const usageResult = await billingService.getProjectUsage(projectId);
         if (usageResult.success) {
@@ -47,9 +43,9 @@ export default function BillingModal({ isOpen, onClose, userId, projectId }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity">
       <div
-        className="w-full max-w-2xl p-6 rounded-2xl shadow-2xl relative flex flex-col gap-6"
+        className="w-full max-w-2xl p-4 sm:p-6 rounded-2xl shadow-2xl relative flex flex-col gap-4 sm:gap-6"
         style={{
           backgroundColor: AppColors.background,
           border: `1px solid ${AppColors.borderHighlight}`,
@@ -58,7 +54,7 @@ export default function BillingModal({ isOpen, onClose, userId, projectId }) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <h2
-            className="text-xl font-bold flex items-center gap-2"
+            className="text-lg sm:text-xl font-bold flex items-center gap-2"
             style={{ color: AppColors.textMain }}
           >
             <Activity size={24} color={AppColors.primary} />
@@ -83,7 +79,7 @@ export default function BillingModal({ isOpen, onClose, userId, projectId }) {
           <div className="flex flex-col gap-6 overflow-y-auto custom-scrollbar max-h-[70vh]">
             {/* OVERALL SUMMARY CARDS */}
             {summary && (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div
                   className="p-4 rounded-xl flex flex-col gap-1"
                   style={{
@@ -98,7 +94,7 @@ export default function BillingModal({ isOpen, onClose, userId, projectId }) {
                     <Coins size={14} /> Total Cost
                   </span>
                   <span
-                    className="text-2xl font-black"
+                    className="text-xl sm:text-2xl font-black"
                     style={{ color: AppColors.textMain }}
                   >
                     ${summary.totalCost?.toFixed(4) || "0.0000"}
@@ -119,7 +115,7 @@ export default function BillingModal({ isOpen, onClose, userId, projectId }) {
                     <Zap size={14} /> Total Tokens
                   </span>
                   <span
-                    className="text-2xl font-black"
+                    className="text-xl sm:text-2xl font-black"
                     style={{ color: AppColors.textMain }}
                   >
                     {summary.totalTokens?.toLocaleString() || 0}
@@ -138,10 +134,10 @@ export default function BillingModal({ isOpen, onClose, userId, projectId }) {
                   Current Project Detail (ID: {projectId})
                 </h3>
                 <div
-                  className="rounded-xl overflow-hidden"
+                  className="rounded-xl overflow-x-auto custom-scrollbar w-full"
                   style={{ border: `1px solid ${AppColors.border}` }}
                 >
-                  <table className="w-full text-left text-sm">
+                  <table className="w-full text-left text-sm min-w-[400px]">
                     <thead
                       style={{
                         backgroundColor: AppColors.surface,
