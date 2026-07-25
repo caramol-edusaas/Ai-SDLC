@@ -2,6 +2,32 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { authService } from "../services/authService";
 
+const initializeBaseUrl = () => {
+  let savedUrl = localStorage.getItem("ai_base_url");
+
+  if (!savedUrl) {
+    savedUrl = import.meta.env.VITE_API_BASE_URL;
+
+    if (!savedUrl) {
+      const userInput = window.prompt(
+        "Welcome! Please enter the API Base URL to continue:",
+        "Base URL Here",
+      );
+      savedUrl = userInput ? userInput.trim() : "";
+    }
+
+    if (savedUrl) {
+      if (savedUrl.endsWith("/")) {
+        savedUrl = savedUrl.slice(0, -1);
+      }
+      localStorage.setItem("ai_base_url", savedUrl);
+    }
+  }
+  return savedUrl || "";
+};
+
+initializeBaseUrl();
+
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {

@@ -1,60 +1,75 @@
+import SockJS from "sockjs-client";
+import Stomp from "stompjs";
+
 export class WebSocketService {
   constructor() {
     this.socket = null;
-    this.reconnectAttempts = 0;
-    this.maxAttempts = 5;
+    this.stompClient = null;
   }
 
-  connect(baseUrl, token, projectId) {
-    // Assuming backend WS URL standard conversion (http -> ws)
-    const wsUrl =
-      baseUrl.replace(/^http/, "ws") +
-      `/ws/chat?token=${token}&projectId=${projectId || ""}`;
+  connect(baseUrl, token, userId, onMessageCallback) {
+    if (this.stompClient && this.stompClient.connected) {
+      console.log("WebSocket already connected.");
+      return;
+    }
 
-    this.socket = new WebSocket(wsUrl);
+    if (!userId || !token) {
+      console.error("User ID and Token are required for WebSocket.");
+      return;
+    }
 
-    this.socket.onopen = () => {
-      console.log("WebSocket Connected Successfully");
-      this.reconnectAttempts = 0;
-    };
+    try {
+      const wsUrl = `${baseUrl}/ws`;
+      this.socket = new SockJS(wsUrl);
+      this.stompClient = Stomp.over(this.socket);
 
-    this.socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+      // Disable spammy console logs unless debugging
+      this.stompClient.debug = () => {};
 
-      // Handle the exact error format from image_996d97.jpg
-      if (data.success === false && data.status === 401) {
-        console.error("WebSocket Auth Error:", data.message);
-        alert(`Session Expired: ${data.message}`);
-        return;
-      }
+      // Connect with Bearer Token
+      const headers = { Authorization: `Bearer ${token}` };
 
-      // TODO: Here you dispatch real-time stream to your ChatContext or UI
-      console.log("Stream received:", data);
-    };
+      this.stompClient.connect(
+        headers,
+        () => {
+          console.log("WebSocket Connected Successfully via STOMP");
 
-    this.socket.onclose = () => {
-      if (this.reconnectAttempts < this.maxAttempts) {
-        setTimeout(() => {
-          this.reconnectAttempts++;
-          this.connect(baseUrl, token, projectId);
-        }, 2000 * this.reconnectAttempts);
-      }
-    };
+          // Subscribe to the exact path client provided
+          this.stompClient.subscribe(`/message/user/${userId}`, (frame) => {
+            try {
+              const body = JSON.parse(frame.body);
+              // Client code extracts payload like this
+              const payloadData = body.payload ? body.payload : body;
 
-    this.socket.onerror = (err) => {
-      console.error("WebSocket Error:", err);
-    };
+              if (onMessageCallback) {
+                onMessageCallback(payloadData);
+              }
+            } catch (e) {
+              console.error("WS parse exception:", frame.body);
+            }
+          });
+        },
+        (error) => {
+          console.error("WebSocket connect failed:", error);
+        },
+      );
+    } catch (err) {
+      console.error("WebSocket error:", err.message);
+    }
   }
 
-  sendMessage(payload) {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify(payload));
+  sendMessage(destination, payload) {
+    if (this.stompClient && this.stompClient.connected) {
+      this.stompClient.send(destination, {}, JSON.stringify(payload));
     }
   }
 
   disconnect() {
-    if (this.socket) {
-      this.socket.close();
+    if (this.stompClient) {
+      this.stompClient.disconnect(() => {
+        console.log("WebSocket Disconnected");
+      });
+      this.stompClient = null;
       this.socket = null;
     }
   }
