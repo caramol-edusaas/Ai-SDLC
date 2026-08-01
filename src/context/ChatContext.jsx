@@ -95,10 +95,10 @@ export const ChatProvider = ({ children }) => {
   };
 
   const fetchWalletBalance = async () => {
-    if (!baseUrl) return;
+    if (!baseUrl || !userId) return;
     try {
       const result = await billingService.getWalletBalance(userId);
-      if (result.success && result.data) {
+      if (result && result.success && result.data) {
         setWalletBalance(result.data.availableBalance);
       }
     } catch (error) {

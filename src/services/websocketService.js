@@ -65,12 +65,31 @@ export class WebSocketService {
   }
 
   disconnect() {
-    if (this.stompClient) {
-      this.stompClient.disconnect(() => {
-        console.log("WebSocket Disconnected");
-      });
-      this.stompClient = null;
-      this.socket = null;
+    try {
+      if (this.stompClient) {
+        if (this.stompClient.connected) {
+          this.stompClient.disconnect(() => {
+            console.log("WebSocket Disconnected");
+          });
+        }
+        this.stompClient = null;
+      }
+
+      // Check if socket exists and is open/opening before calling close
+      if (this.socket) {
+        if (
+          this.socket.readyState === SockJS.OPEN ||
+          this.socket.readyState === SockJS.CONNECTING
+        ) {
+          this.socket.close();
+        }
+        this.socket = null;
+      }
+    } catch (err) {
+      console.warn(
+        "Error during websocket disconnect gracefully handled:",
+        err.message,
+      );
     }
   }
 }
