@@ -1,3 +1,4 @@
+// src/features/chat/services/websocketService.js (or wherever you placed it)
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 
@@ -38,7 +39,6 @@ export class WebSocketService {
           this.stompClient.subscribe(`/message/user/${userId}`, (frame) => {
             try {
               const body = JSON.parse(frame.body);
-              // Client code extracts payload like this
               const payloadData = body.payload ? body.payload : body;
 
               if (onMessageCallback) {

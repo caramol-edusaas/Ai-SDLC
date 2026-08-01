@@ -1,5 +1,6 @@
+// src/features/chat/components/ChatCanvas.jsx
 import React, { useState } from "react";
-import { User, Sparkles, Check, Copy } from "lucide-react";
+import { User, Sparkles, Check, Copy, Activity } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -58,16 +59,16 @@ const CodeBlock = ({ language, value }) => {
 };
 
 export default function ChatCanvas() {
-  const { messages } = useChat();
+  const { messages, workflowState, isGenerating } = useChat();
+
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col gap-6 sm:gap-8 pb-10 px-2 sm:px-0">
       {messages.length === 0 && (
         <div className="flex flex-col items-center justify-center h-[50vh] text-center opacity-50 px-4">
           <Sparkles
             size={40}
-            sm:size={48}
             color={AppColors.textMuted}
-            className="mb-4"
+            className="mb-4 sm:size-12"
           />
           <h2 className="text-lg sm:text-xl font-semibold mb-2">
             What are we building today?
@@ -81,10 +82,12 @@ export default function ChatCanvas() {
         </div>
       )}
 
-      {messages.map((msg) => (
+      {messages.map((msg, index) => (
         <div
-          key={msg.id}
-          className={`flex gap-2 sm:gap-4 w-full ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+          key={msg.id || index}
+          className={`flex gap-2 sm:gap-4 w-full ${
+            msg.role === "user" ? "justify-end" : "justify-start"
+          }`}
         >
           {msg.role === "ai" && (
             <div
@@ -142,6 +145,61 @@ export default function ChatCanvas() {
           )}
         </div>
       ))}
+
+      {/* Render the Workflow Status visually inside the canvas stream */}
+      {workflowState && workflowState.taskState && (
+        <div className="flex gap-2 sm:gap-4 w-full justify-start mt-2">
+          <div className="shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mt-1 bg-blue-900/40 border border-blue-500/30">
+            <Activity size={14} color="#60A5FA" />
+          </div>
+          <div className="w-full max-w-[95%] md:max-w-[80%] p-4 border rounded-xl bg-[#131b2f] border-[#2b376d] shadow-sm">
+            <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-3">
+              Workflow Sync Update
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-300">
+              <div>
+                <span className="text-gray-500 text-xs block mb-1">State</span>
+                <span className="font-medium bg-blue-900/30 px-2 py-1 rounded text-blue-300">
+                  {workflowState.taskState}
+                </span>
+              </div>
+              <div>
+                <span className="text-gray-500 text-xs block mb-1">
+                  Next Action
+                </span>
+                <span className="font-medium text-gray-200">
+                  {workflowState.nextAction || "None"}
+                </span>
+              </div>
+              {workflowState.pendingQuestion && (
+                <div className="col-span-1 md:col-span-2 mt-2 pt-3 border-t border-[#2b376d]/50">
+                  <span className="text-yellow-500/80 text-xs block mb-1">
+                    Pending Question
+                  </span>
+                  <span className="font-medium text-yellow-100">
+                    {workflowState.pendingQuestion}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isGenerating && (
+        <div className="flex gap-2 sm:gap-4 w-full justify-start items-center">
+          <div className="shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center bg-transparent">
+            <Sparkles
+              size={14}
+              className="animate-pulse"
+              color={AppColors.textMuted}
+            />
+          </div>
+          <div className="text-sm italic text-gray-500 animate-pulse">
+            Generating response...
+          </div>
+        </div>
+      )}
     </div>
   );
 }
